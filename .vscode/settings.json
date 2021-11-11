@@ -1,5 +1,6 @@
 {
   "python.formatting.provider": "black",
-  "python.defaultInterpreterPath": "/home/ribo/.local/share/virtualenvs/near-earth-objects-qJNSlJp6/bin/python"
+  "python.defaultInterpreterPath": "/home/ribo/.local/share/virtualenvs/near-earth-objects-XPwlpRx-/bin/python",
+  "editor.formatOnSave": true
 }
 
