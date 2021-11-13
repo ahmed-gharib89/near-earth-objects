@@ -26,8 +26,8 @@ def load_neos(neo_csv_path):
     """
     # Done: Load NEO data from the given CSV file.
     neos = []
-    with open(neo_csv_path, "r") as f:
-        reader = csv.reader(f)
+    with open(neo_csv_path, "r") as infile:
+        reader = csv.reader(infile)
         # Discard header row
         try:
             next(reader)
@@ -40,13 +40,13 @@ def load_neos(neo_csv_path):
                 info = {
                     "designation": row[3],
                     "name": row[4],
-                    "diameter": float(row[15]) if row[15] else float("nan"),
+                    "diameter": row[15],
                     "hazardous": True if row[7] == "Y" else False,
                 }
                 neo = NearEarthObject(**info)
                 neos.append(neo)
-            except ValueError as e:
-                print(e)
+            except ValueError as error:
+                print(error)
 
     return neos
 
@@ -59,8 +59,8 @@ def load_approaches(cad_json_path):
     """
     # Done: Load close approach data from the given JSON file.
     approaches = []
-    with open(cad_json_path, "r") as f:
-        cad_data = json.load(f)
+    with open(cad_json_path, "r") as infile:
+        cad_data = json.load(infile)
 
     data = cad_data["data"]
     for row in data:
@@ -73,7 +73,7 @@ def load_approaches(cad_json_path):
             }
             approache = CloseApproach(**info)
             approaches.append(approache)
-        except ValueError as e:
-            print(e)
+        except ValueError as error:
+            print(error)
 
     return approaches

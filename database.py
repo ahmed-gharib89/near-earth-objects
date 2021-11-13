@@ -78,7 +78,8 @@ class NEODatabase:
         # Done: Fetch an NEO by its primary designation.
         if designation in self.des_to_neo:
             return self.des_to_neo[designation]
-        elif self.des_to_neo_lower.get(designation.lower()):
+
+        if self.des_to_neo_lower.get(designation.lower()):
             return self.des_to_neo_lower[designation.lower()]
 
         return None
@@ -100,7 +101,8 @@ class NEODatabase:
         # Done: Fetch an NEO by its name.
         if name in self.name_to_neo:
             return self.name_to_neo[name]
-        elif name.lower() in self.name_to_neo_lower:
+
+        if name.lower() in self.name_to_neo_lower:
             fuzzy_name = self.name_to_neo_lower[name.lower()]
             print(
                 f"No exact match for `{name}` returning data for `{fuzzy_name.name}` instead "

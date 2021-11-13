@@ -17,6 +17,7 @@ quirks of the data set, such as missing names and unknown diameters.
 
 You'll edit this file in Task 1.
 """
+import math
 from helpers import cd_to_datetime, datetime_to_str
 
 
@@ -49,7 +50,11 @@ class NearEarthObject:
         self.name = info.get("name", None)
         if self.name == "":
             self.name = None
-        self.diameter = info.get("diameter", float("nan"))
+        diameter = info.get("diameter", float("nan"))
+        if diameter == "":
+            self.diameter = float("nan")
+        else:
+            self.diameter = float(diameter)
         self.hazardous = info.get("hazardous", False)
 
         # Create an empty initial collection of linked approaches.
@@ -61,6 +66,15 @@ class NearEarthObject:
         # Use self.designation and self.name to build a fullname for this object.
         return f"{self.designation}{' (' + self.name + ')' if self.name else ''}"
 
+    def serialize(self):
+        """Serialize the NearEarthObject to a dictionary ."""
+        return {
+            "designation": self.designation,
+            "name": self.name if self.name else "",
+            "diameter_km": self.diameter,
+            "potentially_hazardous": self.hazardous,
+        }
+
     def __str__(self):
         """Return `str(self)`."""
         # Use this object's attributes to return a human-readable string representation.
@@ -68,7 +82,7 @@ class NearEarthObject:
         # method for examples of advanced string formatting.
         diameter = (
             f"has a diameter of {self.diameter:.3f} km"
-            if self.diameter != float("nan")
+            if not math.isnan(self.diameter)
             else "has unknown diameter"
         )
         hazardous = "is" if self.hazardous else "is not"
@@ -139,6 +153,22 @@ class CloseApproach:
         # Done: Use self.designation and self.name to build a fullname for this object.
         str_time = datetime_to_str(self.time) if self.time else "unkown"
         return str_time
+
+    def serialize(self):
+        """Serialize the CloseApproch to a dictionary ."""
+        return {
+            "datetime_utc": datetime_to_str(self.time),
+            "distance_au": self.distance,
+            "velocity_km_s": self.velocity,
+        }
+
+    def to_dict(self):
+        """Return a dictionary representation of this `CloseApproach`."""
+        return {**self.serialize(), **self.neo.serialize()}
+
+    def to_json(self):
+        """Return a dictionary representation of this `CloseApproach` for json."""
+        return {**self.serialize(), "neo": self.neo.serialize()}
 
     def __str__(self):
         """Return `str(self)`."""
