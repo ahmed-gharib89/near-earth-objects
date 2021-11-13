@@ -17,6 +17,7 @@ iterator.
 You'll edit this file in Tasks 3a and 3c.
 """
 import operator
+from itertools import islice
 
 
 class UnsupportedCriterionError(NotImplementedError):
@@ -38,6 +39,7 @@ class AttributeFilter:
     Concrete subclasses can override the `get` classmethod to provide custom
     behavior to fetch a desired attribute from the given `CloseApproach`.
     """
+
     def __init__(self, op, value):
         """Construct a new `AttributeFilter` from an binary predicate and a reference value.
 
@@ -72,11 +74,63 @@ class AttributeFilter:
         return f"{self.__class__.__name__}(op=operator.{self.op.__name__}, value={self.value})"
 
 
-def create_filters(date=None, start_date=None, end_date=None,
-                   distance_min=None, distance_max=None,
-                   velocity_min=None, velocity_max=None,
-                   diameter_min=None, diameter_max=None,
-                   hazardous=None):
+class DateFilter(AttributeFilter):
+    """A filter on a `CloseApproach`'s date."""
+
+    @classmethod
+    def get(cls, approach):
+        """Get the date of a close approach."""
+        return approach.time.date()
+
+
+class DistanceFilter(AttributeFilter):
+    """A filter on a `CloseApproach`'s approach distance."""
+
+    @classmethod
+    def get(cls, approach):
+        """Get the approach distance of a close approach."""
+        return approach.distance
+
+
+class VelocetyFilter(AttributeFilter):
+    """A filter on a `CloseApproach`'s approach velocity."""
+
+    @classmethod
+    def get(cls, approach):
+        """Get the relative approach velocity of a close approach."""
+        return approach.velocity
+
+
+class DiameterFilter(AttributeFilter):
+    """A filter on a `CloseApproach`'s NEO diameter"""
+
+    @classmethod
+    def get(cls, approach):
+        """Get the diameter of a close approach`s neo."""
+        return approach.neo.diameter
+
+
+class HazardousFilter(AttributeFilter):
+    """Class method for Hazardous filter ."""
+
+    @classmethod
+    def get(cls, approach):
+        """Get the hazardous of a close approach`s neo."""
+        return approach.neo.hazardous
+
+
+def create_filters(
+    date=None,
+    start_date=None,
+    end_date=None,
+    distance_min=None,
+    distance_max=None,
+    velocity_min=None,
+    velocity_max=None,
+    diameter_min=None,
+    diameter_max=None,
+    hazardous=None,
+):
     """Create a collection of filters from user-specified criteria.
 
     Each of these arguments is provided by the main module with a value from the
@@ -106,8 +160,40 @@ def create_filters(date=None, start_date=None, end_date=None,
     :param hazardous: Whether the NEO of a matching `CloseApproach` is potentially hazardous.
     :return: A collection of filters for use with `query`.
     """
-    # TODO: Decide how you will represent your filters.
-    return ()
+    # Done: Decide how you will represent your filters.
+    filters = []
+
+    if date:
+        filters.append(DateFilter(operator.eq, date))
+
+    if start_date:
+        filters.append(DateFilter(operator.ge, start_date))
+
+    if end_date:
+        filters.append(DateFilter(operator.le, end_date))
+
+    if distance_min:
+        filters.append(DistanceFilter(operator.ge, distance_min))
+
+    if distance_max:
+        filters.append(DistanceFilter(operator.le, distance_max))
+
+    if velocity_min:
+        filters.append(VelocetyFilter(operator.ge, velocity_min))
+
+    if velocity_max:
+        filters.append(VelocetyFilter(operator.le, velocity_max))
+
+    if diameter_min:
+        filters.append(DiameterFilter(operator.ge, diameter_min))
+
+    if diameter_max:
+        filters.append(DiameterFilter(operator.le, diameter_max))
+
+    if hazardous is not None:
+        filters.append(HazardousFilter(operator.eq, hazardous))
+
+    return filters
 
 
 def limit(iterator, n=None):
@@ -119,5 +205,8 @@ def limit(iterator, n=None):
     :param n: The maximum number of values to produce.
     :yield: The first (at most) `n` values from the iterator.
     """
-    # TODO: Produce at most `n` values from the given iterator.
+    # Done: Produce at most `n` values from the given iterator.
+    if n and n > 0:
+        return islice(iterator, n)
+
     return iterator
