@@ -12,6 +12,7 @@ data on NEOs and close approaches extracted by `extract.load_neos` and
 You'll edit this file in Tasks 2 and 3.
 """
 
+
 class NEODatabase:
     """A database of near-Earth objects and their close approaches.
 
@@ -20,6 +21,7 @@ class NEODatabase:
     help fetch NEOs by primary designation or by name and to help speed up
     querying for close approaches that match criteria.
     """
+
     def __init__(self, neos, approaches):
         """Create a new `NEODatabase`.
 
@@ -41,9 +43,24 @@ class NEODatabase:
         self._neos = neos
         self._approaches = approaches
 
-        # TODO: What additional auxiliary data structures will be useful?
+        # Done: What additional auxiliary data structures will be useful?
+        self.name_to_neo = {}
+        self.name_to_neo_lower = {}
+        self.des_to_neo = {}
+        self.des_to_neo_lower = {}
+        for neo in neos:
+            if neo.name:
+                self.name_to_neo[neo.name] = neo
+                self.name_to_neo_lower[neo.name.lower()] = neo
+            if neo.designation:
+                self.des_to_neo[neo.designation] = neo
+                self.des_to_neo_lower[neo.designation.lower()] = neo
 
-        # TODO: Link together the NEOs and their close approaches.
+        # Done: Link together the NEOs and their close approaches.
+        for approache in approaches:
+            neo = self.des_to_neo[approache._designation]
+            neo.approaches.append(approache)
+            approache.neo = neo
 
     def get_neo_by_designation(self, designation):
         """Find and return an NEO by its primary designation.
@@ -58,7 +75,12 @@ class NEODatabase:
         :param designation: The primary designation of the NEO to search for.
         :return: The `NearEarthObject` with the desired primary designation, or `None`.
         """
-        # TODO: Fetch an NEO by its primary designation.
+        # Done: Fetch an NEO by its primary designation.
+        if designation in self.des_to_neo:
+            return self.des_to_neo[designation]
+        elif self.des_to_neo_lower.get(designation.lower()):
+            return self.des_to_neo_lower[designation.lower()]
+
         return None
 
     def get_neo_by_name(self, name):
@@ -75,7 +97,16 @@ class NEODatabase:
         :param name: The name, as a string, of the NEO to search for.
         :return: The `NearEarthObject` with the desired name, or `None`.
         """
-        # TODO: Fetch an NEO by its name.
+        # Done: Fetch an NEO by its name.
+        if name in self.name_to_neo:
+            return self.name_to_neo[name]
+        elif name.lower() in self.name_to_neo_lower:
+            fuzzy_name = self.name_to_neo_lower[name.lower()]
+            print(
+                f"No exact match for `{name}` returning data for `{fuzzy_name.name}` instead "
+            )
+            return fuzzy_name
+
         return None
 
     def query(self, filters=()):
